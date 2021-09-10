@@ -2,6 +2,7 @@ name: ci
 
 on:
   push:
+    branches: master
 
 jobs:
   buildx:
@@ -18,5 +19,10 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v1
       -
-        name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
+        name: Login to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      -
+        name: Build the image
+        run: docker buildx build --push \
+          --tag gpioto/jackett-sync:latest \
+          --platform linux/amd64,linux/arm/v7,linux/arm64 .
